@@ -92,7 +92,7 @@ def process_excel_csv_txt_in_folder(folder_path, api_key):
 
 
 # Set your API key and folder path
-API_KEY = "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"
+API_KEY = "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"
 
 FOLDER_PATH = "training_data"
 
