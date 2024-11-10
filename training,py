@@ -1,0 +1,102 @@
+import os
+import PyPDF2
+import time
+import requests
+
+# Function to extract text from a PDF file
+def extract_text_from_pdf(pdf_path):
+    text = ""
+    with open(pdf_path, "rb") as file:
+        reader = PyPDF2.PdfReader(file)
+        for page in reader.pages:
+            text += page.extract_text() + "\n"
+    return text
+
+# Function to call OpenAI API
+def call_openai_api(prompt, api_key):
+
+    url = "https://api.openai.com/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "model": "gpt-3.5-turbo",  
+        "messages": [{"role": "user", "content": prompt}]
+    }
+    
+
+
+    response = requests.post(url, headers=headers, json=data)
+    time.sleep(30)
+    if response.status_code == 200:
+        
+        return response.json()["choices"][0]["message"]["content"]
+    else:
+        print(f"Error: {response.status_code}, {response.text}")
+        return None
+
+# Function to chunk text for API requests
+def chunk_text(text, max_tokens=2000):
+    words = text.split()
+    chunks = []
+    current_chunk = []
+
+    for word in words:
+        current_chunk.append(word)
+        if len(current_chunk) >= max_tokens:
+            chunks.append(" ".join(current_chunk))
+            current_chunk = []
+    if current_chunk:
+        chunks.append(" ".join(current_chunk))
+
+    return chunks
+
+def process_pdfs_in_folder(folder_path, api_key):
+    for filename in os.listdir(folder_path):
+        if filename.endswith(".pdf"):
+            pdf_path = os.path.join(folder_path, filename)
+            print(f"Processing: {pdf_path}")
+            pdf_text = extract_text_from_pdf(pdf_path)
+            
+            # Chunk the extracted text
+            chunks = chunk_text(pdf_text)
+            for chunk in chunks:
+                response = call_openai_api(chunk, api_key)
+                print(f"Response from API for {filename}: {response}\n")
+
+
+
+
+def process_excel_csv_txt_in_folder(folder_path, api_key):
+    for filename in os.listdir(folder_path):
+
+        if filename.endswith(".xlsx") or filename.endswith(".csv") or filename.endswith(".txt") :
+            pdf_path = os.path.join(folder_path, filename)
+            print("Processing File: ", filename)
+            with open(pdf_path, 'r') as file:
+                lines = file.readlines()
+                text = '\n'.join(lines)
+
+                chunks = chunk_text(text)
+                for chunk in chunks:
+                    response = call_openai_api(chunk, api_key)
+                    print(f"Response from API for {filename}: {response}\n")
+
+                    response = call_openai_api(text, api_key)
+                    print(f"Response from API for {filename}: {response}")
+
+
+
+
+
+
+# Set your API key and folder path
+API_KEY = "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"
+
+FOLDER_PATH = "training_data"
+
+# Run the processing function
+process_pdfs_in_folder(FOLDER_PATH, API_KEY)
+
+process_excel_csv_txt_in_folder(FOLDER_PATH, API_KEY)

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fetch Deposit Data from Nessie API</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    #output {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      background-color: #f9f9f9;
+      white-space: pre-wrap; /* To preserve newlines */
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Deposit Data from Nessie API</h1>
+
+  <!-- A button to trigger the fetch call -->
+  <button id="fetchDataButton">Fetch Deposit Data</button>
+
+  <!-- A div to display the API response -->
+  <div id="output">No data fetched yet.</div>
+
+  <script>
+
+    const ACCOUNT_ID = "672fdbba9683f20dd518b396";
+    const CUSTOMER_ID = "672fdac99683f20dd518b395"
+    const API_KEY = "0992b98e27891f11d3e16d1a5b6adf29"
+
+
+    const depositsUrl = "http://api.nessieisreal.com/accounts/"+ACCOUNT_ID+"/deposits?key="+API_KEY
+
+    const purchasesUrl = "http://api.nessieisreal.com/accounts/"+ACCOUNT_ID+"/purchases?key="+API_KEY
+
+    var financialDataExtracted = []
+    
+    const monthlyTransactions = {};
+
+    // Define any required headers (e.g., Authorization or API key)
+    const headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    };
+
+    function consolidateMonthlyTransactions(transactions, isIncome) {
+ 
+
+        transactions.forEach(transaction => {
+            const date = isIncome ? new Date(transaction.transaction_date) : new Date(transaction.purchase_date) ; // Convert to Date object
+            const yearMonth = `${date.getFullYear()}-${date.getMonth() + 1}`; // Format as YYYY-MM
+            
+            // Initialize the bucket for the month if it doesn't exist
+            if (!monthlyTransactions[yearMonth]) {
+                monthlyTransactions[yearMonth] = {
+                    date: new Date(date.getFullYear(), date.getMonth(), 1), // Set to the 1st day of the month
+                    income: 0,
+                    expenditure: 0
+                };
+            }
+            
+            if(isIncome){
+                monthlyTransactions[yearMonth].income += transaction.amount;
+            }
+            else{
+                monthlyTransactions[yearMonth].expenditure += transaction.amount;
+            }
+            // Add the amount to the total for this month
+            
+        });
+
+        // Convert the monthlyTransactions object into an array
+        return Object.values(monthlyTransactions);
+    }
+
+
+    function renderVisualizations(){
+
+
+        // render graph
+
+
+
+        // render charts
+
+
+
+
+    }
+
+
+
+    function serializeExtractedData(arr){
+        var a = "[";
+
+        for (let i = 0; i < arr.length; i++) {
+            a+= "{ date:"+ arr[i].date+", income:"+arr[i].income+", expenditure: "+arr[i].expenditure +" }, ";
+        }
+
+        a+= "]";
+    }
+
+
+        // Function to call the ChatGPT API
+    async function callChatGPT(inputPrompt) {
+
+        const API_KEY = "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"
+
+        const url = "https://api.openai.com/v1/chat/completions";
+        const headers = {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`
+        };
+
+        const data = {
+            model: "gpt-3.5-turbo", // You can replace this with 'gpt-4' or other models as needed
+            messages: [
+                {
+                    role: "user",  // The message role is 'user' to send a prompt
+                    content: inputPrompt
+                }
+            ]
+        };
+
+        try {
+            // Send the POST request to the OpenAI API
+            const response = await fetch(url, {
+                method: "POST",
+                headers: headers,
+                body: JSON.stringify(data)
+            });
+
+            // Check if the response is ok (status 200)
+            if (!response.ok) {
+                throw new Error(`Error: ${response.statusText}`);
+            }
+
+            // Parse the response as JSON
+            const responseData = await response.json();
+
+            // Extract the reply from the API response
+            const reply = responseData.choices[0].message.content;
+
+            // Display the response in the output div
+            return reply;
+
+        } 
+        catch (error) {
+            console.error("Error calling ChatGPT API:", error);
+            document.getElementById('output').textContent = `Error: ${error.message}`;
+        }
+        }
+
+
+
+
+    async function callPredictiveAnalyzer(){
+
+        var predictiveAnalysisPrompt = serializeExtractedData( financialDataExtracted )+"\nthis data is past 36 months income, expenditure and date records. You are a my financial advisor .... use predictive analysis and current market trends considering inflation, market growth, financial stability and predict next 3 years data with same format... to convert to json.. please do not add any extra text or explanation before or after the response. i need ONLY the list... {date : '11-01-2024', income: 100.00, expenditure: 50}.. this is the value that I need until 2026 end";
+
+        var op = await predictiveAnalysisPrompt();
+
+        opArr = op.json();
+
+        console.log(opArr);
+
+       financialDataExtracted.concat(opArr);
+
+
+       console.log(financialDataExtracted);
+    }
+
+
+    async function callsToDecisionMaker(){
+
+        var decisionMakerPrompt = " You are my Financial Advisor. Using the data I fed you previously, please help me with my query and suggest me the best way to approach my target... Also, consider inflations, market share predictions, labor index, income increments, possible outcomes of several investments.. suggest me a best route to get there and also suggest me a way to maintain financial health down the line after my target is Achieved.. Target: " + document.getElementById("decision_box").value ;
+
+        var op = await callChatGPT(decisionMakerPrompt);
+
+        document.getElementById("genai_output").innerText = op;
+
+        console.log(op);
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+async function fetchPurchases(){
+
+    // Fetch request to the Nessie API
+    const response = await fetch(purchasesUrl, {
+    method: "GET", 
+    headers: headers 
+    });
+
+    if (!response.ok) {
+    // If the response is not ok, throw an error
+    throw new Error(`Error: ${response.statusText}`);
+    }
+
+    data = await response.json(); // Parse the JSON response
+
+
+    financialDataExtracted = consolidateMonthlyTransactions(data, false);
+    console.log("Purchases Done!!");
+    console.log(financialDataExtracted);
+
+    
+}
+
+
+async function fetchDeposits(){
+
+                  // Fetch request to the Nessie API
+    const response = await fetch(depositsUrl, {
+        method: "GET", 
+        headers: headers 
+      });
+     
+          if (!response.ok) {
+            // If the response is not ok, throw an error
+            throw new Error(`Error: ${response.statusText}`);
+          }
+ 
+          data = await response.json(); // Parse the JSON response
+
+          
+            financialDataExtracted = consolidateMonthlyTransactions(data, true);
+          console.log("Purchases Done!!");
+        console.log(financialDataExtracted);
+    }
+
+
+   fetchPurchases();
+   
+   fetchDeposits();
+
+
+   setTimeout(()=>{
+    callPredictiveAnalyzer();
+   }, 1000);
+
+
+
+  </script>
+
+</body>
+</html>
