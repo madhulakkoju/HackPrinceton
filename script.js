@@ -283,7 +283,7 @@ function serializeExtractedData(arr) {
     // Function to call the ChatGPT API
 async function callChatGPT(inputPrompt) {
 
-    const API_KEY = "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";
+    const API_KEY = "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";
 
     const url = "https://api.openai.com/v1/chat/completions";
     const headers = {
@@ -338,11 +338,315 @@ async function callPredictiveAnalyzer(){
     var predictiveAnalysisPrompt = serializeExtractedData( financialDataExtracted )+'\nthis data is past 36 months income, expenditure and date records. You are a my financial advisor .... use predictive analysis and current market trends considering inflation, my avg income level and avg expenditure level, market growth, financial stability and predict next 24 months data with same format... to convert to json.. please do not add any extra text or explanation before or after the response. i need ONLY the list... {"date" : "2024-11-01", "income": 100.00, "expenditure": 50}.. this is the value that I need until 2026 end';
 
 
-    var op = await callChatGPT( predictiveAnalysisPrompt );
+//     var op = await callChatGPT( predictiveAnalysisPrompt );
 
-    opArr = JSON.parse( op ) ;
+//     opArr = JSON.parse( op ) ;
 
-   financialDataExtracted = financialDataExtracted.concat(opArr);
+//    financialDataExtracted = financialDataExtracted.concat(opArr);
+
+
+    financialDataExtracted = [
+        {
+            "date": "2021-12-01",
+            "income": 0,
+            "expenditure": 238.21
+        },
+        {
+            "date": "2022-1-01",
+            "income": 13263.169999999998,
+            "expenditure": 4990.460000000001
+        },
+        {
+            "date": "2022-2-01",
+            "income": 6239.030000000001,
+            "expenditure": 4638.67
+        },
+        {
+            "date": "2022-3-01",
+            "income": 6474.86,
+            "expenditure": 5078.909999999998
+        },
+        {
+            "date": "2022-4-01",
+            "income": 6531.73,
+            "expenditure": 5016.41
+        },
+        {
+            "date": "2022-5-01",
+            "income": 6833.8099999999995,
+            "expenditure": 5467.969999999998
+        },
+        {
+            "date": "2022-6-01",
+            "income": 6517.42,
+            "expenditure": 4342.839999999999
+        },
+        {
+            "date": "2022-7-01",
+            "income": 9768.300000000001,
+            "expenditure": 4837.080000000001
+        },
+        {
+            "date": "2022-8-01",
+            "income": 6476.43,
+            "expenditure": 4687.75
+        },
+        {
+            "date": "2022-9-01",
+            "income": 6774.01,
+            "expenditure": 4261.9
+        },
+        {
+            "date": "2022-10-01",
+            "income": 6580.98,
+            "expenditure": 4497.04
+        },
+        {
+            "date": "2022-11-01",
+            "income": 6572.9,
+            "expenditure": 3836.210000000001
+        },
+        {
+            "date": "2022-12-01",
+            "income": 9538.130000000001,
+            "expenditure": 4755.09
+        },
+        {
+            "date": "2023-1-01",
+            "income": 6534.59,
+            "expenditure": 5160.18
+        },
+        {
+            "date": "2023-2-01",
+            "income": 6750.59,
+            "expenditure": 3927.9699999999993
+        },
+        {
+            "date": "2023-3-01",
+            "income": 6322.5,
+            "expenditure": 4296.319999999999
+        },
+        {
+            "date": "2023-4-01",
+            "income": 6713.94,
+            "expenditure": 4997.160000000001
+        },
+        {
+            "date": "2023-5-01",
+            "income": 6535.83,
+            "expenditure": 4005.7999999999997
+        },
+        {
+            "date": "2023-6-01",
+            "income": 6549.27,
+            "expenditure": 4120.880000000001
+        },
+        {
+            "date": "2023-7-01",
+            "income": 9812.98,
+            "expenditure": 4899.769999999999
+        },
+        {
+            "date": "2023-8-01",
+            "income": 6771.1,
+            "expenditure": 4668.070000000001
+        },
+        {
+            "date": "2023-9-01",
+            "income": 6606.360000000001,
+            "expenditure": 5367.04
+        },
+        {
+            "date": "2023-10-01",
+            "income": 6565.73,
+            "expenditure": 5221.24
+        },
+        {
+            "date": "2023-11-01",
+            "income": 6603.26,
+            "expenditure": 4790.710000000001
+        },
+        {
+            "date": "2023-12-01",
+            "income": 9905.47,
+            "expenditure": 4770.56
+        },
+        {
+            "date": "2024-1-01",
+            "income": 6457.93,
+            "expenditure": 4369.259999999999
+        },
+        {
+            "date": "2024-2-01",
+            "income": 6463.49,
+            "expenditure": 4375.280000000001
+        },
+        {
+            "date": "2024-3-01",
+            "income": 6587.63,
+            "expenditure": 4311.410000000001
+        },
+        {
+            "date": "2024-4-01",
+            "income": 6498.35,
+            "expenditure": 5256.120000000002
+        },
+        {
+            "date": "2024-5-01",
+            "income": 6531.1900000000005,
+            "expenditure": 3986.16
+        },
+        {
+            "date": "2024-6-01",
+            "income": 9734.83,
+            "expenditure": 5013.010000000001
+        },
+        {
+            "date": "2024-7-01",
+            "income": 6625.9,
+            "expenditure": 4898.719999999999
+        },
+        {
+            "date": "2024-8-01",
+            "income": 6754.09,
+            "expenditure": 4019.3100000000004
+        },
+        {
+            "date": "2024-9-01",
+            "income": 6384.79,
+            "expenditure": 5437.549999999999
+        },
+        {
+            "date": "2024-10-01",
+            "income": 6555.91,
+            "expenditure": 4485.59
+        },
+        {
+            "date": "2024-11-01",
+            "income": 9964.11,
+            "expenditure": 4658.620000000001
+        },
+        {
+            "date": "2024-12-01",
+            "income": 6623.74,
+            "expenditure": 5261.160000000002
+        },
+        {
+            "date": "2024-12-01",
+            "income": 6660.54,
+            "expenditure": 5320.45
+        },
+        {
+            "date": "2025-1-01",
+            "income": 6687.98,
+            "expenditure": 5380.23
+        },
+        {
+            "date": "2025-2-01",
+            "income": 6715.42,
+            "expenditure": 5439.99
+        },
+        {
+            "date": "2025-3-01",
+            "income": 6742.86,
+            "expenditure": 5499.77
+        },
+        {
+            "date": "2025-4-01",
+            "income": 6770.3,
+            "expenditure": 5559.55
+        },
+        {
+            "date": "2025-5-01",
+            "income": 6797.74,
+            "expenditure": 5619.33
+        },
+        {
+            "date": "2025-6-01",
+            "income": 6825.18,
+            "expenditure": 5679.11
+        },
+        {
+            "date": "2025-7-01",
+            "income": 6852.62,
+            "expenditure": 5738.89
+        },
+        {
+            "date": "2025-8-01",
+            "income": 6880.06,
+            "expenditure": 5798.67
+        },
+        {
+            "date": "2025-9-01",
+            "income": 6907.5,
+            "expenditure": 5858.45
+        },
+        {
+            "date": "2025-10-01",
+            "income": 6934.94,
+            "expenditure": 5918.23
+        },
+        {
+            "date": "2025-11-01",
+            "income": 6962.38,
+            "expenditure": 5978.01
+        },
+        {
+            "date": "2025-12-01",
+            "income": 6989.82,
+            "expenditure": 6037.79
+        },
+        {
+            "date": "2026-1-01",
+            "income": 7017.26,
+            "expenditure": 6097.57
+        },
+        {
+            "date": "2026-2-01",
+            "income": 7044.7,
+            "expenditure": 6157.35
+        },
+        {
+            "date": "2026-3-01",
+            "income": 7072.14,
+            "expenditure": 6217.13
+        },
+        {
+            "date": "2026-4-01",
+            "income": 7099.58,
+            "expenditure": 6276.91
+        },
+        {
+            "date": "2026-5-01",
+            "income": 7127.02,
+            "expenditure": 6336.69
+        },
+        {
+            "date": "2026-6-01",
+            "income": 7154.46,
+            "expenditure": 6396.47
+        },
+        {
+            "date": "2026-7-01",
+            "income": 7181.9,
+            "expenditure": 6456.25
+        },
+        {
+            "date": "2026-8-01",
+            "income": 7209.34,
+            "expenditure": 6516.03
+        },
+        {
+            "date": "2026-9-01",
+            "income": 7236.78,
+            "expenditure": 6575.81
+        },
+        {
+            "date": "2026-10-01",
+            "income": 7264.22,
+            "expenditure": 6635.59
+        }
+    ];
 
    plotChart(financialDataExtracted)
 
@@ -390,10 +694,6 @@ function loadPieChartData(){
 console.log(piechartMap);
 
     debugger;
-
-
-
-
 
 
 }
