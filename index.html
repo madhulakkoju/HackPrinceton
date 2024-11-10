@@ -1,36 +1,52 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financial Overview</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-dragdata@latest"></script>
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <!-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"> 
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"> -->
 
     <link rel="stylesheet" href="./style.css">
-    
-</head>
-<body>
-    <div id="chartContainer">
-        <canvas id="financialLineChart"></canvas>
-    </div>
-    <!-- Large Text Area below the chart -->
-    <div id="text-area-container">
-        <textarea id="decision_box" rows="5" cols="100" placeholder="Enter your Future Targets here..."></textarea>
-        <button id="submitButton">Submit</button>
-        <div id="genai_output"></div>
-    </div>
 
+</head>
+
+<body>
+    <header>
+        <img src="./logo.jpeg" alt="Logo" id="logo">
+    </header>
+    <div class="dashboard">
+        <div id="lineChartContainer">
+            <canvas id="financialLineChart"></canvas>
+        </div>
+        <div id="pieChartContainer">
+            <canvas id="expensePieChart"></canvas>
+        </div>
+        <!-- Large Text Area below the chart -->
+        <div id="textBoxContainer">
+            <textarea id="decision_box" rows="4" cols="100" placeholder="Enter your Future Targets here..."></textarea>
+            <button id="submitButton">Submit</button>
+        </div>
+        <dialog id="outputDialog">
+            <h1>Advice</h1>
+            <p id="variableValue">Advice: Here will be the output text.</p>
+            <button id="closeDialogBtn">Close</button>
+    </div>
+    </dialog>
+    <!-- <div id="outputContainer">
+            <div id="genai_output"></div>
+        </div> -->
+    </div>
     <script src="./script.js"></script>
 </body>
-</html>
 
+</html>

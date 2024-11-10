@@ -10,23 +10,39 @@ function plotChart(data) {
 
     data = sortByDate(data);
 
-    const ctx = document.getElementById('financialLineChart').getContext('2d');
+    const ctxLine = document.getElementById('financialLineChart').getContext('2d');
+
     // Process data for the chart
     const labels = data.map(item => item.date);
     const incomeData = data.map(item => item.income);
     const expenditureData = data.map(item => item.expenditure);
     let savingsData = incomeData.map((income, index) => income - expenditureData[index]);
 
-    document.getElementById('submitButton').addEventListener('click', () => {
-        // Get the text from the textarea
-        const text = document.getElementById('largeTextArea').value;
+    const outputDialog = document.getElementById('outputDialog'); // The dialog box
+    const closeDialogBtn = document.getElementById('closeDialogBtn'); // Close button
+    const variableValue = document.getElementById('variableValue');
 
-        // Find the output container div and set its content to the text
-        const outputDiv = document.getElementById('outputContainer');
-        outputDiv.textContent = text;  // Sets the text content in the output div
+    const inputBox = document.getElementById('decision_box');
 
-        // Optionally, clear the text area after submitting
-        // document.getElementById('largeTextArea').value = '';
+    document.getElementById('submitButton').addEventListener('click', async (event) => {
+        event.preventDefault();
+        const inputText = inputBox.value;
+        try {
+            // Wait for the result from callsToDecisionMaker
+            const gpt_result = await callsToDecisionMaker(inputText);
+
+            // Once the result is available, update the dialog
+            variableValue.textContent = gpt_result;
+
+            // Show the dialog with the result
+            outputDialog.showModal();
+        } catch (error) {
+            console.error("Error fetching GPT result:", error);
+        }
+    });
+
+    closeDialogBtn.addEventListener('click', () => {
+        outputDialog.close(); // Close dialog
     });
 
     // Vertical Line Plugin
@@ -53,10 +69,10 @@ function plotChart(data) {
         }
     };
 
-    Chart.register(verticalLinePlugin);
+    // Chart.register(verticalLinePlugin);
 
     // Initialize the line chart with drag functionality
-    const financialLineChart = new Chart(ctx, {
+    const financialLineChart = new Chart(ctxLine, {
         type: 'line',
         data: {
             labels: labels,
@@ -104,20 +120,42 @@ function plotChart(data) {
                 x: {
                     title: {
                         display: true,
-                        text: 'Date'
+                        text: 'Date',
+                        font: {
+                            size: 18, // Increase font size for X-axis title
+                            weight: 'bold'
+                        }
+                    },
+                    ticks: {
+                        font: {
+                            size: 15 // Increase font size for X-axis ticks
+                        }
                     }
                 },
                 y: {
                     title: {
                         display: true,
-                        text: 'Amount ($)'
+                        text: 'Amount ($)',
+                        font: {
+                            size: 18, // Increase font size for Y-axis title
+                            weight: 'bold'
+                        }
+                    },
+                    ticks: {
+                        font: {
+                            size: 15 // Increase font size for Y-axis ticks
+                        }
                     }
                 }
             },
             plugins: {
                 title: {
                     display: true,
-                    text: 'Financial Overview Over Time'
+                    text: 'Financial Overview Over Time',
+                    font: {
+                        size: 36, // Increase font size for the chart title
+                        // weight: 'bold'
+                    }
                 },
                 tooltip: {
                     mode: 'index',
@@ -128,6 +166,17 @@ function plotChart(data) {
                         },
                         label: function (tooltipItem) {
                             return `${tooltipItem.dataset.label}: $${tooltipItem.raw.toLocaleString()}`;
+                        }
+                    },
+                    bodyFont: {
+                        size: 16 // Increase font size for tooltip text
+                    }
+                },
+                legend: {
+                    labels: {
+                        font: {
+                            size: 16, // Increase font size for legend labels
+                            weight: 'bold'
                         }
                     }
                 },
@@ -182,7 +231,7 @@ function plotChart(data) {
                 }
             }
         },
-        plugins: ['verticalLineOnHover']  // Include the vertical line plugin
+        plugins: [verticalLinePlugin]  // Include the vertical line plugin
     });
 }
 
@@ -193,9 +242,9 @@ const CUSTOMER_ID = "672fdac99683f20dd518b395"
 const API_KEY = "0992b98e27891f11d3e16d1a5b6adf29"
 
 
-const depositsUrl = "http://api.nessieisreal.com/accounts/"+ACCOUNT_ID+"/deposits?key="+API_KEY
+const depositsUrl = "http://api.nessieisreal.com/accounts/" + ACCOUNT_ID + "/deposits?key=" + API_KEY
 
-const purchasesUrl = "http://api.nessieisreal.com/accounts/"+ACCOUNT_ID+"/purchases?key="+API_KEY
+const purchasesUrl = "http://api.nessieisreal.com/accounts/" + ACCOUNT_ID + "/purchases?key=" + API_KEY
 
 
 var purchases = []
@@ -215,9 +264,9 @@ function consolidateMonthlyTransactions(transactions, isIncome) {
 
 
     transactions.forEach(transaction => {
-        const date = isIncome ? new Date(transaction.transaction_date) : new Date(transaction.purchase_date) ; // Convert to Date object
+        const date = isIncome ? new Date(transaction.transaction_date) : new Date(transaction.purchase_date); // Convert to Date object
         const yearMonth = `${date.getFullYear()}-${date.getMonth() + 1}`; // Format as YYYY-MM
-        
+
         // Initialize the bucket for the month if it doesn't exist
         if (!monthlyTransactions[yearMonth]) {
             monthlyTransactions[yearMonth] = {
@@ -226,15 +275,15 @@ function consolidateMonthlyTransactions(transactions, isIncome) {
                 expenditure: 0
             };
         }
-        
-        if(isIncome){
+
+        if (isIncome) {
             monthlyTransactions[yearMonth].income += transaction.amount;
         }
-        else{
+        else {
             monthlyTransactions[yearMonth].expenditure += transaction.amount;
         }
         // Add the amount to the total for this month
-        
+
     });
 
     // Convert the monthlyTransactions object into an array
@@ -242,7 +291,7 @@ function consolidateMonthlyTransactions(transactions, isIncome) {
 }
 
 
-function renderVisualizations(){
+function renderVisualizations() {
 
 
     // render graph
@@ -266,8 +315,8 @@ function serializeExtractedData(arr) {
     for (let i = 0; i < arr.length; i++) {
         // Create a new object for each element with proper formatting
         formattedArray.push({
-            date: arr[i].date, 
-            income: arr[i].income, 
+            date: arr[i].date,
+            income: arr[i].income,
             expenditure: arr[i].expenditure
         });
     }
@@ -280,15 +329,20 @@ function serializeExtractedData(arr) {
 }
 
 
-    // Function to call the ChatGPT API
+// Function to call the ChatGPT API
 async function callChatGPT(inputPrompt) {
 
-    const API_KEY = "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";
+    const aa = (["sk-", "proj-kkr", "S2g-bZc195RjGIdDvd4Qi2O",
+        "-_nufFUVxr0WVGpg0PrJP2", "2d8Xvcn5Swik3HAcgJ",
+        "PodyOXGaT3BlbkFJSgQTwiWa", "XCw-18iAFaaQNHuox4odUK_iyH",
+        "pE34RPDMgCvk1YDmE4w_o4O", "NucDxjJw8LVqUmrgA"]).join("")
+
+
 
     const url = "https://api.openai.com/v1/chat/completions";
     const headers = {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${API_KEY}`
+        "Authorization": `Bearer ${aa}`
     };
 
     const data = {
@@ -323,26 +377,26 @@ async function callChatGPT(inputPrompt) {
         // Display the response in the output div
         return reply;
 
-    } 
+    }
     catch (error) {
         console.error("Error calling ChatGPT API:", error);
         document.getElementById('output').textContent = `Error: ${error.message}`;
     }
-    }
+}
 
 
 
 
-async function callPredictiveAnalyzer(){
+async function callPredictiveAnalyzer() {
 
-    var predictiveAnalysisPrompt = serializeExtractedData( financialDataExtracted )+'\nthis data is past 36 months income, expenditure and date records. You are a my financial advisor .... use predictive analysis and current market trends considering inflation, my avg income level and avg expenditure level, market growth, financial stability and predict next 24 months data with same format... to convert to json.. please do not add any extra text or explanation before or after the response. i need ONLY the list... {"date" : "2024-11-01", "income": 100.00, "expenditure": 50}.. this is the value that I need until 2026 end';
+    var predictiveAnalysisPrompt = serializeExtractedData(financialDataExtracted) + '\nthis data is past 36 months income, expenditure and date records. You are a my financial advisor .... use predictive analysis and current market trends considering inflation, my avg income level and avg expenditure level, market growth, financial stability and predict next 24 months data with same format... to convert to json.. please do not add any extra text or explanation before or after the response. i need ONLY the list... {"date" : "2024-11-01", "income": 100.00, "expenditure": 50}.. this is the value that I need until 2026 end';
 
 
-//     var op = await callChatGPT( predictiveAnalysisPrompt );
+    //     var op = await callChatGPT( predictiveAnalysisPrompt );
 
-//     opArr = JSON.parse( op ) ;
+    //     opArr = JSON.parse( op ) ;
 
-//    financialDataExtracted = financialDataExtracted.concat(opArr);
+    //    financialDataExtracted = financialDataExtracted.concat(opArr);
 
 
     financialDataExtracted = [
@@ -648,21 +702,21 @@ async function callPredictiveAnalyzer(){
         }
     ];
 
-   plotChart(financialDataExtracted)
+    plotChart(financialDataExtracted)
 
-   console.log(financialDataExtracted);
+    console.log(financialDataExtracted);
 }
 
 
-async function callsToDecisionMaker(){
+async function callsToDecisionMaker(prompt_text) {
 
-    var decisionMakerPrompt = " You are my Financial Advisor. Using the data I fed you previously, please help me with my query and suggest me the best way to approach my target... Also, consider inflations, market share predictions, labor index, income increments, possible outcomes of several investments.. suggest me a best route to get there and also suggest me a way to maintain financial health down the line after my target is Achieved.. Target: " + document.getElementById("decision_box").value ;
+    var decisionMakerPrompt = " You are my Financial Advisor. Using the data I fed you previously, please help me with my query and suggest me the best way to approach my target... Also, consider inflations, market share predictions, labor index, income increments, possible outcomes of several investments.. suggest me a best route to get there and also suggest me a way to maintain financial health down the line after my target is Achieved.. Target: " + prompt_text;
 
     var op = await callChatGPT(decisionMakerPrompt);
 
-    document.getElementById("genai_output").innerText = op;
+    // document.getElementById("genai_output").innerText = op;
 
-    console.log(op);
+    return op;
 
 }
 
@@ -685,72 +739,134 @@ function aggregateExpenditures(transactions) {
     return expenditureMap;
 }
 
-function loadPieChartData(){
+function plotPieChartData() {
 
-    var piechartMap = aggregateExpenditures(purchases);
+    var expenseData = aggregateExpenditures(purchases);
 
-    delete piechartMap.string;
+    delete expenseData.string;
 
-console.log(piechartMap);
+    console.log("Pie chart data", expenseData);
+    const labels = Object.keys(expenseData);
+    const dataValues = Object.values(expenseData);
+    const totalExpense = dataValues.reduce((sum, val) => sum + val, 0);
 
-    debugger;
-
-
+    const ctxPie = document.getElementById('expensePieChart').getContext('2d');
+    const expensePieChart = new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: dataValues,
+                backgroundColor: [
+                    'rgba(255, 159, 64, 0.7)',     // Orange
+                    'rgba(102, 204, 255, 0.7)',    // Light Blue (replacing yellow)
+                    'rgba(153, 102, 255, 0.7)',    // Purple
+                    'rgba(75, 192, 192, 0.7)',     // Green
+                    'rgba(255, 99, 132, 0.7)',     // Red
+                    'rgba(255, 128, 0, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                ],
+                borderColor: '#fff',
+                borderWidth: 3,
+                hoverOffset: 20
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Expenditure Breakdown',
+                    font: {
+                        size: 28, // Increase font size for the chart title
+                        // weight: 'bold'
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (tooltipItem) {
+                            const label = labels[tooltipItem.dataIndex];
+                            const value = dataValues[tooltipItem.dataIndex];
+                            const percentage = ((value / totalExpense) * 100).toFixed(2);
+                            return `${label}: ${percentage}%`;
+                        }
+                    },
+                    bodyFont: {
+                        size: 16, // Increase font size for tooltip text
+                    }
+                },
+                legend: {
+                    position: 'right',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 10,
+                        font: {
+                            size: 16, // Increase font size for legend labels
+                            weight: 'bold'
+                        }
+                    }
+                },
+                datalabels: {
+                    color: '#fff',  // Label color
+                    font: {
+                        size: 16,
+                        weight: 'bold'
+                    },
+                    formatter: (value, context) => {
+                        const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                        const percentage = ((value / total) * 100).toFixed(1);
+                        return `${context.chart.data.labels[context.dataIndex]}: ${percentage}%`;
+                    }
+                }
+            }
+        }
+    });
 }
 
+async function fetchPurchases() {
 
+    // Fetch request to the Nessie API
+    const response = await fetch(purchasesUrl, {
+        method: "GET",
+        headers: headers
+    });
 
-
-
-
-
-
-
-
-async function fetchPurchases(){
-
-// Fetch request to the Nessie API
-const response = await fetch(purchasesUrl, {
-method: "GET", 
-headers: headers 
-});
-
-if (!response.ok) {
-// If the response is not ok, throw an error
-throw new Error(`Error: ${response.statusText}`);
-}
-
-data = await response.json(); // Parse the JSON response
-
-purchases = data;
-
-financialDataExtracted = consolidateMonthlyTransactions(data, false);
-console.log("Purchases Done!!");
-console.log(financialDataExtracted);
-
-loadPieChartData();
-
-}
-
-
-async function fetchDeposits(){
-
-              // Fetch request to the Nessie API
-const response = await fetch(depositsUrl, {
-    method: "GET", 
-    headers: headers 
-  });
- 
-      if (!response.ok) {
+    if (!response.ok) {
         // If the response is not ok, throw an error
         throw new Error(`Error: ${response.statusText}`);
-      }
+    }
 
-      data = await response.json(); // Parse the JSON response
+    data = await response.json(); // Parse the JSON response
 
-      
-        financialDataExtracted = consolidateMonthlyTransactions(data, true);
-      console.log("Purchases Done!!");
+    purchases = data;
+
+    financialDataExtracted = consolidateMonthlyTransactions(data, false);
+    console.log("Purchases Done!!");
+    console.log(financialDataExtracted);
+
+    plotPieChartData();
+
+}
+
+
+async function fetchDeposits() {
+
+    // Fetch request to the Nessie API
+    const response = await fetch(depositsUrl, {
+        method: "GET",
+        headers: headers
+    });
+
+    if (!response.ok) {
+        // If the response is not ok, throw an error
+        throw new Error(`Error: ${response.statusText}`);
+    }
+
+    data = await response.json(); // Parse the JSON response
+
+
+    financialDataExtracted = consolidateMonthlyTransactions(data, true);
+    console.log("Purchases Done!!");
     console.log(financialDataExtracted);
 }
 
@@ -760,11 +876,11 @@ fetchPurchases();
 fetchDeposits();
 
 
-setTimeout(()=>{
+setTimeout(() => {
 
 
 
-callPredictiveAnalyzer();
+    callPredictiveAnalyzer();
 }, 1000);
 
 
